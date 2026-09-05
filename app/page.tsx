@@ -1,7 +1,7 @@
+```tsx
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Wrench,
   Zap,
@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Star,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const services = [
   {
@@ -35,23 +36,11 @@ const services = [
   },
 ];
 
-const problems = [
-  "تسريب مياه",
-  "انسداد",
-  "خلاط",
-  "سخان",
-  "مضخة",
-  "أخرى",
-];
-
 export default function HomePage() {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [selectedProblem, setSelectedProblem] = useState<string | null>(null);
+  const router = useRouter();
 
-  const scrollToServices = () => {
-    document.getElementById("services")?.scrollIntoView({
-      behavior: "smooth",
-    });
+  const goToServices = () => {
+    router.push("/services");
   };
 
   return (
@@ -74,10 +63,10 @@ export default function HomePage() {
           </div>
 
           <button
-            onClick={scrollToServices}
+            onClick={goToServices}
             className="rounded-xl bg-[#dca900] px-5 py-2.5 text-sm font-bold text-[#111214] transition hover:-translate-y-0.5 hover:bg-[#edbd16] active:scale-95"
           >
-            اطلب صيانة
+            اختيار خدمة
           </button>
         </div>
       </header>
@@ -113,10 +102,10 @@ export default function HomePage() {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
-                onClick={scrollToServices}
+                onClick={goToServices}
                 className="flex items-center justify-center gap-3 rounded-2xl bg-[#dca900] px-7 py-4 font-black text-[#111214] shadow-xl shadow-[#dca900]/10"
               >
-                اطلب صيانة الآن
+                اختيار خدمة
                 <ArrowLeft size={20} />
               </motion.button>
 
@@ -154,8 +143,12 @@ export default function HomePage() {
               <div className="rounded-[1.5rem] bg-[#f7f7f5] p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-black/40">طلب صيانة جديد</p>
-                    <h3 className="mt-1 text-xl font-black">وش المشكلة؟</h3>
+                    <p className="text-sm text-black/40">
+                      طلب صيانة جديد
+                    </p>
+                    <h3 className="mt-1 text-xl font-black">
+                      اختر الخدمة
+                    </h3>
                   </div>
 
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#dca900]">
@@ -164,25 +157,42 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-3">
-                  {["سباكة", "كهرباء", "صيانة عامة"].map((item, index) => (
-                    <motion.div
-                      key={item}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + index * 0.12 }}
-                      className="flex items-center justify-between rounded-2xl border border-black/5 bg-white p-4 shadow-sm"
-                    >
-                      <span className="font-bold">{item}</span>
-                      <ArrowLeft size={18} className="text-black/30" />
-                    </motion.div>
-                  ))}
+                  {services.map((service) => {
+                    const Icon = service.icon;
+
+                    return (
+                      <button
+                        key={service.id}
+                        onClick={() =>
+                          router.push(`/request?service=${service.id}`)
+                        }
+                        className="flex w-full items-center justify-between rounded-2xl border border-black/5 bg-white p-4 text-right shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f3ea] text-[#b58a00]">
+                            <Icon size={20} />
+                          </div>
+                          <span className="font-bold">
+                            {service.title}
+                          </span>
+                        </div>
+
+                        <ArrowLeft
+                          size={18}
+                          className="text-black/30"
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-5 flex items-center gap-3 rounded-2xl bg-[#111214] p-4 text-white">
                   <MapPin className="text-[#dca900]" size={20} />
                   <div>
                     <p className="text-xs text-white/40">موقعك</p>
-                    <p className="font-bold">حدد موقعك عند الطلب</p>
+                    <p className="font-bold">
+                      نحدده عند إكمال الطلب
+                    </p>
                   </div>
                 </div>
               </div>
@@ -191,26 +201,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Services */}
-      <section id="services" className="mx-auto max-w-7xl px-5 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <p className="font-bold text-[#b58a00]">الخطوة الأولى</p>
-          <h2 className="mt-2 text-4xl font-black md:text-5xl">
-            وش تحتاج نصلح؟
-          </h2>
-          <p className="mt-4 max-w-xl text-black/50">
-            اختر نوع الخدمة، وبعدها نكمل معك الطلب بخطوات بسيطة وواضحة.
-          </p>
-        </motion.div>
+      {/* Services Preview */}
+      <section className="mx-auto max-w-7xl px-5 py-24">
+        <p className="font-bold text-[#b58a00]">الخطوة الأولى</p>
+
+        <h2 className="mt-2 text-4xl font-black md:text-5xl">
+          وش تحتاج نصلح؟
+        </h2>
+
+        <p className="mt-4 max-w-xl text-black/50">
+          اختر الخدمة المناسبة، وبعدها ندخلك مباشرة في خطوات الطلب.
+        </p>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {services.map((service, index) => {
             const Icon = service.icon;
-            const selected = selectedService === service.id;
 
             return (
               <motion.button
@@ -221,33 +226,20 @@ export default function HomePage() {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -7 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setSelectedService(service.id);
-                  setSelectedProblem(null);
-                }}
-                className={`group text-right rounded-3xl border p-6 text-right transition-all ${
-                  selected
-                    ? "border-[#dca900] bg-[#dca900] shadow-xl shadow-[#dca900]/20"
-                    : "border-black/5 bg-white hover:border-[#dca900]/40 hover:shadow-xl"
-                }`}
+                onClick={() =>
+                  router.push(`/request?service=${service.id}`)
+                }
+                className="group rounded-3xl border border-black/5 bg-white p-6 text-right transition-all hover:border-[#dca900]/40 hover:shadow-xl"
               >
-                <div
-                  className={`mb-7 flex h-14 w-14 items-center justify-center rounded-2xl transition ${
-                    selected
-                      ? "bg-[#111214] text-[#dca900]"
-                      : "bg-[#f5f3ea] text-[#b58a00] group-hover:bg-[#dca900] group-hover:text-[#111214]"
-                  }`}
-                >
+                <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f5f3ea] text-[#b58a00] transition group-hover:bg-[#dca900] group-hover:text-[#111214]">
                   <Icon size={27} />
                 </div>
 
-                <h3 className="text-xl font-black">{service.title}</h3>
+                <h3 className="text-xl font-black">
+                  {service.title}
+                </h3>
 
-                <p
-                  className={`mt-2 leading-7 ${
-                    selected ? "text-black/60" : "text-black/45"
-                  }`}
-                >
+                <p className="mt-2 leading-7 text-black/45">
                   {service.description}
                 </p>
 
@@ -259,72 +251,22 @@ export default function HomePage() {
             );
           })}
         </div>
-
-        {/* Problem Selection */}
-        <AnimatePresence>
-          {selectedService && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: 20 }}
-              animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -10 }}
-              className="mt-8 overflow-hidden"
-            >
-              <div className="rounded-3xl bg-[#111214] p-6 text-white md:p-8">
-                <p className="text-sm text-[#dca900]">الخطوة الثانية</p>
-
-                <h3 className="mt-2 text-2xl font-black">
-                  حدد المشكلة
-                </h3>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                  {problems.map((problem) => (
-                    <motion.button
-                      key={problem}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => setSelectedProblem(problem)}
-                      className={`rounded-2xl border px-4 py-4 text-right font-bold transition ${
-                        selectedProblem === problem
-                          ? "border-[#dca900] bg-[#dca900] text-[#111214]"
-                          : "border-white/10 bg-white/5 hover:bg-white/10"
-                      }`}
-                    >
-                      {problem}
-                    </motion.button>
-                  ))}
-                </div>
-
-                {selectedProblem && (
-                  <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-[#dca900] px-6 py-4 font-black text-[#111214] transition hover:bg-[#edbd16]"
-                  >
-                    أكمل طلب الصيانة
-                    <ArrowLeft size={19} />
-                  </motion.button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </section>
 
       {/* How it works */}
       <section className="bg-[#111214] px-5 py-24 text-white">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
-            <p className="font-bold text-[#dca900]">بكل بساطة</p>
-            <h2 className="mt-2 text-4xl font-black md:text-5xl">
-              من الطلب إلى الفني
-              <span className="text-[#dca900]"> بخطوات واضحة.</span>
-            </h2>
-          </div>
+          <p className="font-bold text-[#dca900]">بكل بساطة</p>
+
+          <h2 className="mt-2 text-4xl font-black md:text-5xl">
+            من الطلب إلى الفني
+            <span className="text-[#dca900]"> بخطوات واضحة.</span>
+          </h2>
 
           <div className="mt-12 grid gap-5 md:grid-cols-4">
             {[
               ["01", "اختر الخدمة", "حدد نوع الصيانة اللي تحتاجها."],
-              ["02", "حدد المشكلة", "اختر المشكلة وأضف تفاصيلها."],
+              ["02", "بيانات العميل", "أدخل بيانات التواصل ووصف المشكلة."],
               ["03", "حدد الموقع والوقت", "نعرف وين ومتى نجيك."],
               ["04", "تابع طلبك", "تابع حالة الفني خطوة بخطوة."],
             ].map(([number, title, description]) => (
@@ -336,7 +278,11 @@ export default function HomePage() {
                 <span className="text-4xl font-black text-[#dca900]/40">
                   {number}
                 </span>
-                <h3 className="mt-5 text-xl font-black">{title}</h3>
+
+                <h3 className="mt-5 text-xl font-black">
+                  {title}
+                </h3>
+
                 <p className="mt-2 leading-7 text-white/45">
                   {description}
                 </p>
@@ -350,17 +296,35 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-20">
         <div className="grid gap-5 md:grid-cols-3">
           {[
-            ["فنيون مختصون", "نوصل طلبك للفني المناسب حسب نوع المشكلة."],
-            ["متابعة الطلب", "تعرف حالة طلبك بدون ما تضيع بين الاتصالات."],
-            ["تجربة واضحة", "من أول طلبك إلى انتهاء الخدمة كل شيء مرتب."],
+            [
+              "فنيون مختصون",
+              "نوصل طلبك للفني المناسب حسب نوع المشكلة.",
+            ],
+            [
+              "متابعة الطلب",
+              "تعرف حالة طلبك بدون ما تضيع بين الاتصالات.",
+            ],
+            [
+              "تجربة واضحة",
+              "من أول طلبك إلى انتهاء الخدمة كل شيء مرتب.",
+            ],
           ].map(([title, description]) => (
             <div
               key={title}
               className="rounded-3xl border border-black/5 bg-white p-7"
             >
-              <CheckCircle2 className="text-[#c19300]" size={28} />
-              <h3 className="mt-5 text-xl font-black">{title}</h3>
-              <p className="mt-2 leading-7 text-black/45">{description}</p>
+              <CheckCircle2
+                className="text-[#c19300]"
+                size={28}
+              />
+
+              <h3 className="mt-5 text-xl font-black">
+                {title}
+              </h3>
+
+              <p className="mt-2 leading-7 text-black/45">
+                {description}
+              </p>
             </div>
           ))}
         </div>
@@ -376,3 +340,4 @@ export default function HomePage() {
     </main>
   );
 }
+```
